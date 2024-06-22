@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import './App.css';
 import bgDesktopDark from './assets/images/bg-desktop-dark.jpg';
 
@@ -8,8 +8,33 @@ export interface Content {
   completed: boolean;
 }
 
+type Action =
+  | { type: 'ADD_TASK'; text: string }
+  | { type: 'TOGGLE_TASK'; id: number }
+  | { type: 'CLEAR_COMPLETED' };
+
+const tasksReducer = (state: Content[], action: Action): Content[] => {
+  switch (action.type) {
+    case 'ADD_TASK':
+      const newTask: Content = {
+        id: state.length + 1,
+        text: action.text,
+        completed: false,
+      };
+      return [...state, newTask];
+    case 'TOGGLE_TASK':
+      return state.map((task) =>
+        task.id === action.id ? { ...task, completed: !task.completed } : task
+      );
+    case 'CLEAR_COMPLETED':
+      return state.filter((task) => !task.completed);
+    default:
+      return state;
+  }
+};
+
 const App: React.FC = () => {
-  const [tasks, setTasks] = useState<Content[]>([
+  const [tasks, dispatch] = useReducer(tasksReducer, [
     { id: 1, text: 'Complete online JavaScript course', completed: true },
     { id: 2, text: 'Jog around the park 3x', completed: false },
     { id: 3, text: '10 minutes meditation', completed: false },
@@ -20,29 +45,19 @@ const App: React.FC = () => {
   const [filter, setFilter] = useState<string>('all');
   const [text, setText] = useState<string>('');
 
-  const addTask = (e: React.FormEvent) => {
-    e.preventDefault();
+  const addTask = () => {
     if (text.trim()) {
-      const newTask: Content = {
-        id: tasks.length + 1,
-        text,
-        completed: false,
-      };
-      setTasks([...tasks, newTask]);
+      dispatch({ type: 'ADD_TASK', text });
       setText('');
     }
   };
 
   const toggleTask = (id: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+    dispatch({ type: 'TOGGLE_TASK', id });
   };
 
   const clearCompleted = () => {
-    setTasks(tasks.filter((task) => !task.completed));
+    dispatch({ type: 'CLEAR_COMPLETED' });
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -62,13 +77,15 @@ const App: React.FC = () => {
             <span role="img" aria-label="toggle theme">🌞</span>
           </button>
         </header>
-        <form onSubmit={addTask} className="content-input">
-          <input type="text"
+        <div className="content-input">
+          <input
+            type="text"
             placeholder="Create a new todo..."
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-        </form>
+          <button onClick={addTask}>Add Task</button>
+        </div>
         <ul className="content-list">
           {filteredTasks.map((task) => (
             <li key={task.id} className={`content-item ${task.completed ? 'completed' : ''}`}>
