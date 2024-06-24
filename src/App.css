@@ -127,3 +127,35 @@
 .clear-completed:hover {
   color: #dfe3e8;
 }
+
+.content-input .btn{
+border:none;
+text-align: center;
+color: aqua;
+background-color: chocolate;
+font-size: 18px;
+cursor: pointer;
+padding: 5px;
+border-radius: 8px;
+display: inline-block;
+width: 100px;
+margin-top: 10px;
+transition: background-color 0.3s ease;
+}
+.content-input .btn:hover{
+  background-color: rgb(56, 39, 19);
+}
+.delete{
+  border: none;
+  background-color: rgb(34, 148, 148);
+  cursor: pointer;
+  transition:background-color 0.3s ease;
+  color: rgb(17, 17, 35);
+  padding: 6px;
+  display: inline-block;
+  width: 120px;
+  margin-right: 20px;
+}
+.delete:hover{
+  background-color: darkgoldenrod;
+}

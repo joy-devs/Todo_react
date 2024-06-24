@@ -11,7 +11,9 @@ export interface Content {
 type Action =
   | { type: 'ADD_TASK'; text: string }
   | { type: 'TOGGLE_TASK'; id: number }
-  | { type: 'CLEAR_COMPLETED' };
+  | { type: 'CLEAR_COMPLETED' }
+  | { type: 'DELETE_TASK'; id: number }
+  | { type: 'UPDATE_TASK'; id: number; text: string };
 
 const tasksReducer = (state: Content[], action: Action): Content[] => {
   switch (action.type) {
@@ -28,6 +30,12 @@ const tasksReducer = (state: Content[], action: Action): Content[] => {
       );
     case 'CLEAR_COMPLETED':
       return state.filter((task) => !task.completed);
+    case 'DELETE_TASK':
+      return state.filter((task) => task.id !== action.id);
+    case 'UPDATE_TASK':
+      return state.map((task) =>
+        task.id === action.id ? { ...task, text: action.text } : task
+      );
     default:
       return state;
   }
@@ -54,6 +62,14 @@ const App: React.FC = () => {
 
   const toggleTask = (id: number) => {
     dispatch({ type: 'TOGGLE_TASK', id });
+  };
+
+  const deleteTask = (id: number) => {
+    dispatch({ type: 'DELETE_TASK', id });
+  };
+
+  const updateTask = (id: number, newText: string) => {
+    dispatch({ type: 'UPDATE_TASK', id, text: newText });
   };
 
   const clearCompleted = () => {
@@ -84,7 +100,7 @@ const App: React.FC = () => {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <button onClick={addTask}>Add Task</button>
+          <button className='btn' onClick={addTask}>Add Task</button>
         </div>
         <ul className="content-list">
           {filteredTasks.map((task) => (
@@ -97,6 +113,12 @@ const App: React.FC = () => {
                 />
                 <span>{task.text}</span>
               </label>
+              <button className='delete' onClick={() => deleteTask(task.id)}>Delete</button>
+              <input
+                type="text"
+                value={task.text}
+                onChange={(e) => updateTask(task.id, e.target.value)}
+              />
             </li>
           ))}
         </ul>
